@@ -53,7 +53,29 @@ namespace Play.Catalog.Service.Controllers {
                 DateTimeOffset.UtcNow
             );
             items.Add(item);
-            return CreatedAtAction(nameof(GetById));
+            return CreatedAtAction(
+                nameof(GetById),
+                new {
+                    id = item.Id
+                },
+                item
+            );
+        }
+
+        // This method IActionResult doesn't return anything. This is logical as we update the record and we don't reutrn anything.
+        // This is for updating the details of an existing item
+        [HttpPut("{id}")]
+        public IActionResult Put(Guid id, UpdateItemDto updateItemDto) {
+            var existingItem = items.Where(item => item.Id == id).SingleOrDefault();
+            var updatedItem = existingItem with {
+                Name = updateItemDto.Name,
+                Description = updateItemDto.Description,
+                Price = updateItemDto.Price,
+            };
+            var index = items.FindIndex(item => item.Id == id);
+            items[index] = updatedItem;
+
+            return NoContent();
         }
     }
 }
